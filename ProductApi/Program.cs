@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ProductApi.API.Middlewares;
 using ProductApi.BusinessLayer.Abstracts;
 using ProductApi.BusinessLayer.Concretes;
 using ProductApi.DataAccessLayer.Abstracts;
@@ -45,6 +46,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // app.UseCors();
 

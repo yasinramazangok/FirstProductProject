@@ -32,8 +32,7 @@ namespace ProductApi.Controllers
         {
             var product = await _productService.GetByIdAsync(id);
             if (product == null)
-                return NotFound(); // Return 404 if not found
-
+                throw new KeyNotFoundException($"ID'si {id} olan ürün bulunamadı!");
             return Ok(product);
         }
 
@@ -61,25 +60,13 @@ namespace ProductApi.Controllers
                 CreatedAt = DateTime.Now
             };
 
-            try
-            {
-                await _productService.AddAsync(product);
+            await _productService.AddAsync(product);
 
-                // Map Product entity -> ProductDto for response
-                var result = MapToProductDto(product);
+            // Map Product entity -> ProductDto for response
+            var result = MapToProductDto(product);
 
-                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                // Specific database error (e.g., constraint violation, duplicate SKU)
-                return BadRequest(new { message = "Ürün eklenirken veritabanı hatası oluştu!", details = dbEx.Message });
-            }
-            catch (Exception ex)
-            {
-                // General exception catch
-                return StatusCode(500, new { message = "Beklenmeyen bir hata oluştu!", details = ex.Message });
-            }
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+
         }
 
         // PUT: api/products/5
@@ -87,11 +74,11 @@ namespace ProductApi.Controllers
         public async Task<ActionResult<ProductDto>> Update(int id, UpdateProductDto dto)
         {
             if (id != dto.Id)
-                return BadRequest("Ürün ID'leri eşleşmiyor!"); // Ensure ID consistency
+                throw new KeyNotFoundException("Ürün ID'leri eşleşmiyor!");
 
             var existingProduct = await _productService.GetByIdAsync(id);
             if (existingProduct == null)
-                return NotFound();
+                throw new KeyNotFoundException($"ID'si {id} olan ürün bulunamadı!");
 
             // Map UpdateProductDto -> existing Product entity
             existingProduct.Name = dto.Name;
@@ -109,79 +96,35 @@ namespace ProductApi.Controllers
             existingProduct.IsActive = dto.IsActive;
             existingProduct.UpdatedAt = DateTime.Now;
 
-            try
-            {
-                await _productService.UpdateAsync(existingProduct);
+            await _productService.UpdateAsync(existingProduct);
 
-                // Map Product entity -> ProductDto for response
-                var result = MapToProductDto(existingProduct);
+            // Map Product entity -> ProductDto for response
+            var result = MapToProductDto(existingProduct);
 
-                return Ok(result);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                // Specific database error (e.g., constraint violation, duplicate SKU)
-                return BadRequest(new { message = "Ürün güncellenirken veritabanı hatası oluştu!", details = dbEx.Message });
-            }
-            catch (Exception ex)
-            {
-                // General exception catch
-                return StatusCode(500, new { message = "Beklenmeyen bir hata oluştu!", details = ex.Message });
-            }
+            return Ok(result);
         }
 
         // DELETE: api/products/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                // Await the deletion operation, no return value
-                await _productService.DeleteAsync(id);
+            // Await the deletion operation, no return value
+            await _productService.DeleteAsync(id);
 
-                // If we reach here, deletion is assumed successful
-                return NoContent(); // 204 No Content
-            }
-            catch (DbUpdateException dbEx)
-            {
-                // Handle database-specific errors, e.g., FK constraint violations
-                return BadRequest(new { message = "Ürün silinirken veritabanı hatası oluştu!", details = dbEx.Message });
-            }
-            catch (KeyNotFoundException)
-            {
-                // If you throw a KeyNotFoundException in your service for missing ID
-                return NotFound(new { message = $"ID'si {id} olan ürün bulunamadı!" });
-            }
-            catch (Exception ex)
-            {
-                // Catch any unexpected exceptions
-                return StatusCode(500, new { message = "Beklenmeyen bir hata oluştu!", details = ex.Message });
-            }
+            // If we reach here, deletion is assumed successful
+            return NoContent(); // 204 No Content           
         }
 
         // GET: api/products/active
         [HttpGet("active")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetActiveProducts()
         {
-            try
-            {
-                var activeProducts = await _productService.GetActiveProductsAsync();
+            var activeProducts = await _productService.GetActiveProductsAsync();
 
-                // Map Product entities -> ProductDto list
-                var result = activeProducts.Select(MapToProductDto).ToList();
+            // Map Product entities -> ProductDto list
+            var result = activeProducts.Select(MapToProductDto).ToList();
 
-                return Ok(result);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                // Handle database-specific errors
-                return BadRequest(new { message = "Aktif ürünler getirilirken veritabanı hatası oluştu!", details = dbEx.Message });
-            }
-            catch (Exception ex)
-            {
-                // Catch any unexpected exceptions
-                return StatusCode(500, new { message = "Beklenmeyen bir hata oluştu!", details = ex.Message });
-            }
+            return Ok(result);
         }
 
         // =============================
