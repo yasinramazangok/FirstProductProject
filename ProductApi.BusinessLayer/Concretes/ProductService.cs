@@ -22,7 +22,7 @@ namespace ProductApi.BusinessLayer.Concretes
 
         public async Task<List<Product>> GetActiveProductsAsync()
         {
-            return await _productRepository.GetAllAsync();
+            return await _productRepository.GetActiveProductsAsync();
         }
     }
 }

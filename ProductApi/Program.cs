@@ -1,10 +1,31 @@
 using Microsoft.EntityFrameworkCore;
+using ProductApi.BusinessLayer.Abstracts;
+using ProductApi.BusinessLayer.Concretes;
+using ProductApi.DataAccessLayer.Abstracts;
+using ProductApi.DataAccessLayer.Concretes;
 using ProductApi.DataAccessLayer.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// Registering the Product repository and service with dependency injection
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
+
+// CORS configuration is commented out for now because there is no frontend yet.
+// This demonstrates awareness of cross-origin requests and how to enable them 
+// if a frontend (or another origin) needs to call this API in the future.
+//
+// builder.Services.AddCors(options =>
+// {
+//     options.AddDefaultPolicy(policy =>
+//     {
+//         policy.AllowAnyOrigin()
+//               .AllowAnyHeader()
+//               .AllowAnyMethod();
+//     });
+// });
 
 builder.Services.AddDbContext<ProductDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ProductApiDbConnection")));
@@ -24,6 +45,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// app.UseCors();
 
 app.UseAuthorization();
 
