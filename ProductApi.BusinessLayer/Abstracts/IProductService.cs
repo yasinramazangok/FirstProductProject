@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProductApi.DataAccessLayer.Abstracts
+namespace ProductApi.BusinessLayer.Abstracts
 {
-    public interface IProductRepository : IGenericRepository<Product>
+    public interface IProductService : IGenericService<Product>
     {
         // Example of a product-specific method
         Task<List<Product>> GetActiveProductsAsync();

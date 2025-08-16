@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace ProductApi.DataAccessLayer.Concretes
 {
-    public class Repository<T> : IRepository<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         protected readonly ProductDbContext _context;
 
-        public Repository(ProductDbContext context)
+        public GenericRepository(ProductDbContext context)
         {
             _context = context;
         }
@@ -28,7 +28,7 @@ namespace ProductApi.DataAccessLayer.Concretes
             return await _context.Set<T>().FindAsync(id);
         }
 
-        public async Task AddAsync(T entity)
+        public async Task InsertAsync(T entity)
         {
             await _context.Set<T>().AddAsync(entity);
             await _context.SaveChangesAsync();

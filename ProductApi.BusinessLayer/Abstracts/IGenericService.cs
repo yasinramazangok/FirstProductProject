@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProductApi.DataAccessLayer.Abstracts
+namespace ProductApi.BusinessLayer.Abstracts
 {
-    public interface IRepository<T> where T : class
+    public interface IGenericService<T> where T : class
     {
         Task<List<T>> GetAllAsync();
-        Task<T?> GetByIdAsync(int id);
+        Task<T> GetByIdAsync(int id);
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(int id);

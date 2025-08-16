@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ProductApi.DataAccessLayer.Concretes
 {
-    public class ProductRepository : Repository<Product>, IProductRepository
+    public class ProductRepository : GenericRepository<Product>, IProductRepository
     {
         public ProductRepository(ProductDbContext context) : base(context)
         {
