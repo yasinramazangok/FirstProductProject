@@ -5,7 +5,7 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 
-COPY ["ProductApi/ProductApi.API.sln", "./"]
+COPY ["ProductApi/ProductApi.sln", "./"]
 
 COPY ["ProductApi/ProductApi/ProductApi.API.csproj", "ProductApi/"]
 COPY ["ProductApi/ProductApi.BusinessLayer/ProductApi.BusinessLayer.csproj", "ProductApi.BusinessLayer/"]
