@@ -4,11 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using ProductApi.BusinessLayer.Abstracts;
 using ProductApi.EntityLayer.DTOs.ProductDtos;
 using ProductApi.EntityLayer.Models;
+using System.Net.Mime;
 
 namespace ProductApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces(MediaTypeNames.Application.Json)]
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -20,6 +22,7 @@ namespace ProductApi.Controllers
 
         // GET: api/products
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ProductDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll()
         {
             var products = await _productService.GetAllAsync();
@@ -27,18 +30,24 @@ namespace ProductApi.Controllers
         }
 
         // GET: api/products/5
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProductDto>> GetById(int id)
         {
             var product = await _productService.GetByIdAsync(id);
+
             if (product == null)
-                throw new KeyNotFoundException($"ID'si {id} olan ürün bulunamadı!");
+                return NotFound(new { message = $"ID'si {id} olan ürün bulunamadı." });
+            
             return Ok(product);
         }
 
         // POST: api/products
         [HttpPost]
-        public async Task<ActionResult<ProductDto>> Create(CreateProductDto dto)
+        [ProducesResponseType(typeof(ProductDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ProductDto>> Create([FromBody] CreateProductDto dto)
         {
             // Map CreateProductDto -> Product entity
             var product = new Product
@@ -70,15 +79,18 @@ namespace ProductApi.Controllers
         }
 
         // PUT: api/products/5
-        [HttpPut("{id}")]
-        public async Task<ActionResult<ProductDto>> Update(int id, UpdateProductDto dto)
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ProductDto>> Update(int id, [FromBody] UpdateProductDto dto)
         {
             if (id != dto.Id)
-                throw new KeyNotFoundException("Ürün ID'leri eşleşmiyor!");
+                return BadRequest(new { message = "Ürün ID'leri eşleşmiyor!" });
 
             var existingProduct = await _productService.GetByIdAsync(id);
             if (existingProduct == null)
-                throw new KeyNotFoundException($"ID'si {id} olan ürün bulunamadı!");
+                return NotFound(new { message = $"ID'si {id} olan ürün bulunamadı." });
 
             // Map UpdateProductDto -> existing Product entity
             existingProduct.Name = dto.Name;
@@ -105,7 +117,9 @@ namespace ProductApi.Controllers
         }
 
         // DELETE: api/products/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
             // Await the deletion operation, no return value
