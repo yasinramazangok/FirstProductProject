@@ -45,7 +45,17 @@ namespace ProductApi.DataAccessLayer.Concretes
             var entity = await _context.Set<T>().FindAsync(id);
             if (entity != null)
             {
-                _context.Set<T>().Remove(entity);
+                var propIsActive = entity.GetType().GetProperty("IsActive");
+                var propUpdatedAt = entity.GetType().GetProperty("UpdatedAt");
+
+                if (propIsActive != null)
+                    propIsActive.SetValue(entity, false);
+
+                if (propUpdatedAt != null)
+                    propUpdatedAt.SetValue(entity, DateTime.UtcNow);
+
+                _context.Set<T>().Update(entity);
+
                 await _context.SaveChangesAsync();
             }
         }
