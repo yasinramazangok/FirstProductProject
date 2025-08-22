@@ -42,7 +42,6 @@ namespace ProductApi.EntityLayer.DTOs.ProductDtos
         [MaxLength(50)]
         public string Dimensions { get; set; } = null!;
 
-        [Url]
         public string? ImageUrl { get; set; }                   // Optional at creation
 
         [MaxLength(200)]
